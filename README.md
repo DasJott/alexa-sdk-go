@@ -1,6 +1,11 @@
 # Alexa SDK for GO
-Alexa SDK for native go on AWS Lambda
+Alexa SDK for native go on AWS Lambda<br>
 
+Installation:
+``` bash
+go get https://github.com/dasjott/alexa-sdk-go
+```
+<br>
 # Usage / Quick Start
 ## __main__
 Your main function is fairly clear
