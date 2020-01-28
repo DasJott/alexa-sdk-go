@@ -247,3 +247,6 @@ For slots the alexa.Context provides the Method `Slot("slotname")`. It returns a
 - `c.System`<br>
 	Returns the system property of the request. That contains information about the calling system and user.
 
+## Donate?
+If you appreciate what I do, please consider [donation via PayPal](paypal.me/dasjott).<br>
+Thank you ;-)
