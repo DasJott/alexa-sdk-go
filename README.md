@@ -1,5 +1,6 @@
 # Alexa SDK for GO
 Alexa SDK for native go on AWS Lambda<br>
+[_Me Like!_](paypal.me/dasjott)
 
 Installation:
 ``` bash
