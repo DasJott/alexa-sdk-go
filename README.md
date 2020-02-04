@@ -193,7 +193,7 @@ Please note that cascaded structs work concatenated with dots as a value. A stru
 #### special feature for floats
 - Float numbers are rendered according to language according to commas and dots.
 - the number of decimal places defaults to 2, but can be modified in two ways:
-  - in your localization provide a field `":decimals": 4` to achieve four decimal places for that language.
+  - in your Translation map provide a field `":decimals": 4` to achieve four decimal places for that language.
   - in your struct provide the alexa tag with additional info: `alexa:"NUM,3"` to achieve 3 decimal places fot that specific field.
 
 ## __Attributes__
