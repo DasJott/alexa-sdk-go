@@ -2,6 +2,7 @@ package alexa
 
 import (
 	"reflect"
+	"strconv"
 	"strings"
 
 	"golang.org/x/text/language"
@@ -17,7 +18,9 @@ type Translation map[string]interface{}
 // Translator actively translates keys to values
 type Translator struct {
 	Phrases Translation
-	Format  func(string, ...interface{}) string
+	// Format   func(string, ...interface{}) string
+	printer  *message.Printer // formatter for the current language
+	decimals int              // number of decimal places
 }
 
 // R (for Replace) is a shortcut for map[string]interface{}, while the value must be int (any), float (any) or string
@@ -31,16 +34,31 @@ func (loc Localisation) GetTranslator(locale string) *Translator {
 			lang, err = language.Parse("en-US")
 		}
 		if err == nil {
-			prnt := message.NewPrinter(lang)
-			return &Translator{
-				Phrases: ph,
-				Format: func(str string, stuff ...interface{}) string {
-					return prnt.Sprintf(str, stuff...)
-				},
+			trans := &Translator{
+				Phrases:  ph,
+				printer:  message.NewPrinter(lang),
+				decimals: 2,
 			}
+			if dec, ok := ph[":decimals"].(int); ok {
+				trans.decimals = dec
+			}
+			return trans
 		}
 	}
 	return nil
+}
+
+func (tr *Translator) toString(val interface{}, floatlength int) string {
+	switch v := val.(type) {
+	case int, int8, int16, int32, int64:
+		return tr.printer.Sprintf("%d", v)
+	case float32, float64:
+		len := strconv.Itoa(floatlength)
+		return tr.printer.Sprintf("%."+len+"f", v)
+	case string:
+		return v
+	}
+	return ""
 }
 
 // GetString gets a string from the value according to the given key
@@ -79,7 +97,7 @@ func (tr *Translator) GetStringAndReplace(key string, replace R) string {
 	str := tr.GetString(key)
 
 	for k, v := range replace {
-		str = strings.Replace(str, "{"+k+"}", tr.Format("%v", v), -1)
+		str = strings.Replace(str, "{"+k+"}", tr.toString(v, tr.decimals), -1)
 	}
 
 	return str
@@ -96,20 +114,26 @@ func (tr *Translator) GetStringWithVariables(key string, data interface{}) strin
 }
 
 func (tr *Translator) setFields(str *string, data interface{}, prefix string) {
-	t, v := reflect.TypeOf(data), reflect.ValueOf(data)
-	for t.Kind() == reflect.Ptr {
-		t = t.Elem()
-	}
+	v := reflect.ValueOf(data)
 	for v.Kind() == reflect.Ptr {
 		v = v.Elem()
 	}
+	t := v.Type()
 
 	for i := 0; i < v.NumField(); i++ {
 		tf, vf := t.Field(i), v.Field(i)
 
-		name := tf.Name
+		name, flen := tf.Name, tr.decimals
 		if tag := tf.Tag.Get("alexa"); tag != "" {
-			name = tag
+			parts := strings.Split(tag, ",")
+			if len(parts) > 0 {
+				name = parts[0]
+			}
+			if len(parts) > 1 {
+				if l, err := strconv.Atoi(parts[1]); err == nil {
+					flen = l
+				}
+			}
 		}
 		if prefix != "" {
 			name = prefix + "." + name
@@ -118,14 +142,7 @@ func (tr *Translator) setFields(str *string, data interface{}, prefix string) {
 		if vf.Kind() == reflect.Struct || (vf.Kind() == reflect.Ptr && vf.Elem().Kind() == reflect.Struct) {
 			tr.setFields(str, vf.Interface(), name)
 		} else {
-			var value string
-			if tf.Type.String() == "string" {
-				value = vf.String()
-			} else if strings.HasPrefix(tf.Type.String(), "int") {
-				value = tr.Format("%d", vf.Int())
-			} else if strings.HasPrefix(tf.Type.String(), "float") {
-				value = tr.Format("%v", vf.Float())
-			}
+			value := tr.toString(vf.Interface(), flen)
 			*str = strings.Replace(*str, "{"+name+"}", value, -1)
 		}
 	}

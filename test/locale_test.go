@@ -3,9 +3,9 @@ package test_test
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/dasjott/alexa-sdk-go"
 	"github.com/dasjott/alexa-sdk-go/dialog"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTranslator(t *testing.T) {
@@ -46,7 +46,7 @@ func TestTranslator(t *testing.T) {
 	type Vals struct {
 		Name string  `alexa:"person"`
 		Age  int     `alexa:"age"`
-		Size float32 `alexa:"size"`
+		Size float32 `alexa:"size,1"`
 	}
 	myData := Vals{"Batman", 39, 17.5}
 

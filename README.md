@@ -10,7 +10,7 @@ go get https://github.com/dasjott/alexa-sdk-go
 # Usage / Quick Start
 ## __main__
 Your main function is fairly clear
-```go
+``` go
 func main() {
 	alexa.AppID = "your-skill-id-1234"
 	alexa.Handlers = handlers
@@ -21,7 +21,7 @@ func main() {
 
 ## __handlers__
 The 'handlers' variable mentioned in main:
-```go
+``` go
 var handlers = alexa.IntentHandlers{
 	"LaunchRequest": func(c *alexa.Context) {
 		sayHello(c, c.T("HELLO"))
@@ -47,7 +47,7 @@ func sayHello(c *alexa.Context, speech string) {
 
 ## __locales__
 The 'locales' variable mentioned in main:
-```go
+``` go
 var locales = alexa.Localisation{
 	"de-DE": alexa.Translation{
 		"HELLO":     []string{"Hallo.", "Guten Tag."},
@@ -154,6 +154,13 @@ The SDK makes sure the request was responded before another one may be sent or b
 	Sends a progress to Alexa to be rendered. You can use ssml.<br>
 	This method returns immediately as the request runs parallel to the subsequent code.<br>
 
+## __Voice__
+For most languages different voices are provided for temporary usage.<br>
+- call the function `dialog.SetVoice("Joey")` to set up the according voice for all output.
+- use the function `dialog.Voice("Kimberly", "Hey, I'm feeling fine.")` for any particular string.
+
+The according ssml tags are added automaticly.
+
 ## __Localization__
 As you could already notice, localization is rather easy with this SDK. It always automaticly chooses the current language and returns the translation.<br>
 There are three different functions provided:
@@ -174,20 +181,24 @@ You can place values into your translated strings on runtime. You use the `c.TR(
 Place variables to be substituted within your string as follows:<br>
 `"BAZ": "You have {NUM} cookies"`<br>
 The key would be "NUM" then. The translation kit either uses the struct field name or if provided an alexa tag. Example:
-```go
+``` go
 type MyStruct struct {
 	Num int `json:"num" alexa:"NUM"`
 }
 ```
 The tag always wins over the field name.<br>
-Please note that cascaded structs go concatenated with dots as a value. A struct 'foo' contains another struct 'bar' which contains a value "baz". The replacement variable would then be 'bar.baz'.
+Please note that cascaded structs work concatenated with dots as a value. A struct 'foo' contains another struct 'bar' which contains a value "baz". The replacement variable would then be 'bar.baz'.
 
-**Please note that float numbers are rendered according to language.**
+#### special feature for floats
+- Float numbers are rendered according to language according to commas and dots.
+- the number of decimal places defaults to 2, but can be modified in two ways:
+  - in your localization provide a field `":decimals": 4` to achieve four decimal places for that language.
+  - in your struct provide the alexa tag with additional info: `alexa:"NUM,3"` to achieve 3 decimal places fot that specific field.
 
 ## __Attributes__
 Supported types: interface{}, string, bool, int, float32.<br>
 To access the session attributes, you simply use the Attr method of the context.
-```go
+``` go
 // to write attributes
 c.Attr("my_number", 42)
 c.Attr("my_str", "what a value")
