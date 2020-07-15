@@ -1,6 +1,6 @@
 # Alexa SDK for GO
 Alexa SDK for native go on AWS Lambda<br>
-[_Me Like!_](https://paypal.me/dasjott/2EUR)
+[_A coffee?_](https://www.buymeacoffee.com/dasjott)
 
 Installation:
 ``` bash
@@ -260,5 +260,5 @@ For slots the alexa.Context provides the Method `Slot("slotname")`. It returns a
 	Returns the system property of the request. That contains information about the calling system and user.
 
 ## Donate?
-If you appreciate what I do, please consider [donation via PayPal](https://paypal.me/dasjott/2EUR).<br>
+If you appreciate what I do, please consider to [buy me a coffee](https://www.buymeacoffee.com/dasjott).<br>
 Thank you ;-)
