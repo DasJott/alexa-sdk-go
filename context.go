@@ -140,6 +140,8 @@ func (c *Context) Ask(speechOutput string, repromptSpeech ...string) *Cardable {
 	return &Cardable{c}
 }
 
+func (c *Context) Play(m Media)
+
 // AudioPlay is for AudioPlayer.Play
 func (c *Context) AudioPlay(audio, id, speech string) *Cardable {
 	// c.response.OutputSSML(speech).AudioDirective("AudioPlayer.Play", "REPLACE_ALL")

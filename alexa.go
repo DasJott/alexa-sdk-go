@@ -52,7 +52,7 @@ var Handle = func(req *dialog.EchoRequest) (*dialog.EchoResponse, error) {
 		panic("language " + req.Request.Locale + " not implemented")
 	}
 
-	c := Context{
+	c := &Context{
 		request:    req,
 		handlers:   Handlers,
 		response:   dialog.NewResponse(),
