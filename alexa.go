@@ -1,32 +1,42 @@
 package alexa
 
 import (
+	"fmt"
+	"math/rand"
+	"time"
+
 	"github.com/dasjott/alexa-sdk-go/api"
 	"github.com/dasjott/alexa-sdk-go/dialog"
+	"github.com/dasjott/alexa-sdk-go/intents"
+	"github.com/dasjott/alexa-sdk-go/intents/canfulfill"
 )
 
-// AppID is the ID of the corresponding skill
-var AppID string
+var (
+	// AppID is the ID of the corresponding skill
+	AppID string
 
-// Handlers are intent functions to be called by name
-var Handlers IntentHandlers
+	// Handlers are intent functions to be called by name
+	Handlers IntentHandlers
 
-var CanFulfillIntent func(*dialog.EchoIntent)
+	CanFulfillIntent func(*dialog.EchoIntent) *canfulfill.Response
 
-// LocaleStrings are all localized strings
-var LocaleStrings Localisation
+	// LocaleStrings are all localized strings
+	LocaleStrings Localisation
 
-// GetTranslation is called with the current locale code.
-// You must provide the according Translation.
-var GetTranslation func(locale string) Translation
+	// GetTranslation is called with the current locale code.
+	// You must provide the according Translation.
+	GetTranslation func(locale string) Translation
 
-// BeforeHandler can be set with a function to implement any checking before every intent.
-// It returns true for going on with the actual intent or false to skip.
-// Remember to implement a appropriate message to the user on skipping!
-var BeforeHandler func(*Context)
+	// BeforeHandler can be set with a function to implement any checking before every intent.
+	// It returns true for going on with the actual intent or false to skip.
+	// Remember to implement a appropriate message to the user on skipping!
+	BeforeHandler func(*Context)
+
+	random *rand.Rand
+)
 
 // Handle is the function you hand over to the lambda.start
-var Handle = func(req *dialog.EchoRequest) (*dialog.EchoResponse, error) {
+var Handle = func(req *dialog.EchoRequest) (intents.Response, error) {
 	if req == nil {
 		panic("Echo request is nil")
 	}
@@ -37,6 +47,14 @@ var Handle = func(req *dialog.EchoRequest) (*dialog.EchoResponse, error) {
 	if AppID != "" && !req.VerifyAppID(AppID) {
 		panic("invalid app id")
 	}
+
+	intent := req.GetIntentName()
+	fmt.Printf("intent: %s\n", intent)
+
+	if resp := handleXIntents(req); resp != nil {
+		return resp, nil
+	}
+
 	if Handlers == nil {
 		panic("no handlers set")
 	}
@@ -56,7 +74,6 @@ var Handle = func(req *dialog.EchoRequest) (*dialog.EchoResponse, error) {
 
 	c := &Context{
 		request:    req,
-		handlers:   Handlers,
 		response:   dialog.NewResponse(),
 		translator: trans,
 		attributes: req.Session.Attributes,
@@ -66,8 +83,46 @@ var Handle = func(req *dialog.EchoRequest) (*dialog.EchoResponse, error) {
 		Time:   req.GetTime(),
 	}
 
-	c.start(req)
-	return c.getResult()
+	if c.translator == nil {
+		panic("no translator set")
+	}
+	if c.attributes == nil {
+		c.attributes = make(attributes)
+	}
+
+	random = rand.New(rand.NewSource(time.Now().Unix()))
+
+	if BeforeHandler != nil {
+		BeforeHandler(c)
+	}
+	if !c.abort {
+		if handler, exists := Handlers[intent]; exists {
+			handler(c)
+		} else if handler, exists := Handlers["Unhandled"]; exists {
+			handler(c)
+		} else {
+			panic("no handler found")
+		}
+	}
+
+	return handleUserIntents(c)
+}
+
+func handleXIntents(req *dialog.EchoRequest) *intents.XResponse {
+	name := req.GetRequestType()
+
+	switch {
+	case name == "CanFulfillIntentRequest" && CanFulfillIntent != nil:
+		content := CanFulfillIntent(req.Request.Intent)
+		return canfulfill.NewXResponse(content)
+	}
+	return nil
+}
+
+func handleUserIntents(c *Context) (*dialog.EchoResponse, error) {
+	c.progressWait()
+	c.response.SessionAttributes = c.attributes
+	return c.response, c.err
 }
 
 // IntentHandler function for the handler

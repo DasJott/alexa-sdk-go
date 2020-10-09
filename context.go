@@ -1,8 +1,6 @@
 package alexa
 
 import (
-	"fmt"
-	"math/rand"
 	"strings"
 	"time"
 
@@ -10,13 +8,10 @@ import (
 	"github.com/dasjott/alexa-sdk-go/media"
 )
 
-var random *rand.Rand
-
 // Context is the object sent to every intent, collecting infos for response
 type Context struct {
 	attributes
 	request    *dialog.EchoRequest
-	handlers   IntentHandlers
 	response   *dialog.EchoResponse
 	translator *Translator
 	err        error
@@ -28,47 +23,6 @@ type Context struct {
 	Intent *dialog.EchoIntent
 	// Time is the requests timestamp as go time.Time
 	Time time.Time
-}
-
-func (c *Context) start(req *dialog.EchoRequest) {
-	if c.translator == nil {
-		panic("no translator set")
-	}
-	if c.attributes == nil {
-		c.attributes = make(attributes)
-	}
-
-	random = rand.New(rand.NewSource(time.Now().Unix()))
-
-	if BeforeHandler != nil {
-		BeforeHandler(c)
-	}
-	if !c.abort {
-		c.onIntent(req)
-	}
-}
-
-func (c *Context) onIntent(req *dialog.EchoRequest) {
-	name := req.GetIntentName()
-	tipe := req.GetRequestType()
-
-	fmt.Printf("intent: %s: %s\n", tipe, name)
-
-	if tipe == "CanFulfillIntentRequest" && CanFulfillIntent != nil {
-		CanFulfillIntent(req.Request.Intent)
-	} else if handler, exists := c.handlers[name]; exists {
-		handler(c)
-	} else if handler, exists := c.handlers["Unhandled"]; exists {
-		handler(c)
-	} else {
-		panic("no handler found")
-	}
-}
-
-func (c *Context) getResult() (*dialog.EchoResponse, error) {
-	c.progressWait()
-	c.response.SessionAttributes = c.attributes
-	return c.response, c.err
 }
 
 func (c *Context) progressWait() {

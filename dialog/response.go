@@ -1,6 +1,8 @@
 package dialog
 
-import "encoding/json"
+import (
+	"encoding/json"
+)
 
 type EchoResponse struct {
 	Version           string                 `json:"version"`
