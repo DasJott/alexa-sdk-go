@@ -11,6 +11,8 @@ var AppID string
 // Handlers are intent functions to be called by name
 var Handlers IntentHandlers
 
+var CanFulfillIntent func(*dialog.EchoIntent)
+
 // LocaleStrings are all localized strings
 var LocaleStrings Localisation
 
@@ -59,8 +61,8 @@ var Handle = func(req *dialog.EchoRequest) (*dialog.EchoResponse, error) {
 		translator: trans,
 		attributes: req.Session.Attributes,
 
-		System: &req.Context.System,
-		Intent: &req.Request.Intent,
+		System: req.Context.System,
+		Intent: req.Request.Intent,
 		Time:   req.GetTime(),
 	}
 
@@ -91,5 +93,5 @@ func MultiHandler(handlers ...IntentHandler) IntentHandler {
 
 // API sets up a client to call the alexa api
 func API(c *Context) *api.Client {
-	return api.NewClient(&c.request.Context.System)
+	return api.NewClient(c.request.Context.System)
 }

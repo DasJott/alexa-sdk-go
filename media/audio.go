@@ -1,4 +1,4 @@
-package player
+package media
 
 // NewAudio returns a pointer to a new Audio object.
 func NewAudio(url string) *Audio {

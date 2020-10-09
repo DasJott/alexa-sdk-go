@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/dasjott/alexa-sdk-go/dialog"
+	"github.com/dasjott/alexa-sdk-go/media"
 )
 
 var random *rand.Rand
@@ -43,13 +44,19 @@ func (c *Context) start(req *dialog.EchoRequest) {
 		BeforeHandler(c)
 	}
 	if !c.abort {
-		c.onIntent(req.GetIntentName())
+		c.onIntent(req)
 	}
 }
 
-func (c *Context) onIntent(name string) {
-	fmt.Printf("intent: %s\n", name)
-	if handler, exists := c.handlers[name]; exists {
+func (c *Context) onIntent(req *dialog.EchoRequest) {
+	name := req.GetIntentName()
+	tipe := req.GetRequestType()
+
+	fmt.Printf("intent: %s: %s\n", tipe, name)
+
+	if tipe == "CanFulfillIntentRequest" && CanFulfillIntent != nil {
+		CanFulfillIntent(req.Request.Intent)
+	} else if handler, exists := c.handlers[name]; exists {
 		handler(c)
 	} else if handler, exists := c.handlers["Unhandled"]; exists {
 		handler(c)
@@ -75,7 +82,7 @@ func (c *Context) progressWait() {
 func (c *Context) Slot(name string) *Slot {
 	if c.request.Request.Intent.Slots != nil {
 		if slot, ok := c.request.Request.Intent.Slots[name]; ok {
-			return slotFromEchoSlot(&slot)
+			return slotFromEchoSlot(slot)
 		}
 	}
 	return &Slot{}
@@ -140,17 +147,7 @@ func (c *Context) Ask(speechOutput string, repromptSpeech ...string) *Cardable {
 	return &Cardable{c}
 }
 
-func (c *Context) Play(m Media)
-
-// AudioPlay is for AudioPlayer.Play
-func (c *Context) AudioPlay(audio, id, speech string) *Cardable {
-	// c.response.OutputSSML(speech).AudioDirective("AudioPlayer.Play", "REPLACE_ALL")
-	return &Cardable{c}
-}
-
-// AudioStop is for AudioPlayer.Stop, AudioPlayer.ClearQueue
-func (c *Context) AudioStop(speech string) *Cardable {
-	// c.response.OutputSSML(speech).AudioDirective("AudioPlayer.Stop", "")
+func (c *Context) Play(m media.Player) *Cardable {
 	return &Cardable{c}
 }
 
@@ -188,6 +185,7 @@ func (c *Context) Progress(speech string) {
 
 // Now returns the time of the request on users side
 func (c *Context) Now() time.Time {
+	// TODO: determine users time
 	return time.Now()
 }
 

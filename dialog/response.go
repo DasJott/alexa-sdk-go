@@ -5,7 +5,7 @@ import "encoding/json"
 type EchoResponse struct {
 	Version           string                 `json:"version"`
 	SessionAttributes map[string]interface{} `json:"sessionAttributes"`
-	Response          EchoResponseBody       `json:"response"`
+	Response          *EchoResponseBody      `json:"response"`
 }
 
 type EchoResponseBody struct {
@@ -45,7 +45,7 @@ type EchoCardImage struct {
 func NewResponse() *EchoResponse {
 	er := &EchoResponse{
 		Version: "1.0",
-		Response: EchoResponseBody{
+		Response: &EchoResponseBody{
 			ShouldEndSession: false,
 		},
 		SessionAttributes: make(map[string]interface{}),

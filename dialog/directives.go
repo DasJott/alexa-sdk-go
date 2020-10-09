@@ -19,14 +19,14 @@ type SlotDirective struct {
 // AUDIO PLAYER
 
 type AudioDirective struct {
-	Type          string        `json:"type"`
-	PlayBehaviour string        `json:"playBehavior",omitempty`  // either play or clear
-	ClearBehavior string        `json:"clearBehavior",omitempty` // either play or clear
-	Audioitem     EchoAudioItem `json:"audioItem"`
+	Type          string         `json:"type"`
+	PlayBehaviour string         `json:"playBehavior,omitempty"`  // either play or clear
+	ClearBehavior string         `json:"clearBehavior,omitempty"` // either play or clear
+	Audioitem     *EchoAudioItem `json:"audioItem"`
 }
 
 type EchoAudioItem struct {
-	Stream AudioStream    `json:"stream"`
+	Stream *AudioStream   `json:"stream"`
 	Meta   *AudioMetadata `json:"metadata,omitempty"`
 }
 
@@ -38,8 +38,8 @@ type AudioStream struct {
 }
 
 type AudioMetadata struct {
-	Title           string    `json:"title"`
-	Subtitle        string    `json:"subtitle"`
-	Art             EchoImage `json:"art"`
-	BackgroundImage EchoImage `json:"backgroundImage"`
+	Title           string     `json:"title"`
+	Subtitle        string     `json:"subtitle"`
+	Art             *EchoImage `json:"art"`
+	BackgroundImage *EchoImage `json:"backgroundImage"`
 }

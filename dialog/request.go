@@ -6,28 +6,28 @@ import (
 )
 
 type EchoRequest struct {
-	Version string             `json:"version"`
-	Session EchoSession        `json:"session"`
-	Request EchoRequestBody    `json:"request"`
-	Context EchoRequestContext `json:"context"`
+	Version string              `json:"version"`
+	Session *EchoSession        `json:"session"`
+	Request *EchoRequestBody    `json:"request"`
+	Context *EchoRequestContext `json:"context"`
 }
 
 type EchoSession struct {
 	New         bool                   `json:"new"`
 	SessionID   string                 `json:"sessionId"`
-	Application EchoApplication        `json:"application"`
+	Application *EchoApplication       `json:"application"`
 	Attributes  map[string]interface{} `json:"attributes"`
-	User        EchoUser               `json:"user"`
+	User        *EchoUser              `json:"user"`
 }
 
 type EchoRequestBody struct {
-	Type        string     `json:"type"`
-	RequestID   string     `json:"requestId"`
-	Timestamp   string     `json:"timestamp"`
-	DialogState string     `json:"dialogState"`
-	Intent      EchoIntent `json:"intent"`
-	Reason      string     `json:"reason"`
-	Locale      string     `json:"locale"`
+	Type        string      `json:"type"`
+	RequestID   string      `json:"requestId"`
+	Timestamp   string      `json:"timestamp"`
+	DialogState string      `json:"dialogState"`
+	Intent      *EchoIntent `json:"intent"`
+	Reason      string      `json:"reason"`
+	Locale      string      `json:"locale"`
 }
 
 type EchoApplication struct {
@@ -51,16 +51,16 @@ type EchoDevice struct {
 }
 
 type EchoSystem struct {
-	Device         EchoDevice      `json:"device"`
-	Application    EchoApplication `json:"application"`
-	User           EchoUser        `json:"user"`
-	Person         EchoPerson      `json:"person"`
-	APIEndpoint    string          `json:"apiEndpoint"`
-	APIAccessToken string          `json:"apiAccessToken"`
+	Device         *EchoDevice      `json:"device"`
+	Application    *EchoApplication `json:"application"`
+	User           *EchoUser        `json:"user"`
+	Person         *EchoPerson      `json:"person"`
+	APIEndpoint    string           `json:"apiEndpoint"`
+	APIAccessToken string           `json:"apiAccessToken"`
 }
 
 type EchoRequestContext struct {
-	System EchoSystem `json:"System"`
+	System *EchoSystem `json:"System"`
 }
 
 // EchoSlot is the json part for a slot
@@ -82,7 +82,7 @@ type EchoAuthorityResolution struct {
 }
 
 type EchoAuthorityResolutionValue struct {
-	Value NameID `json:"value"`
+	Value *NameID `json:"value"`
 }
 
 type NameID struct {

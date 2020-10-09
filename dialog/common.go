@@ -13,13 +13,13 @@ func SetVoice(name string) {
 
 // EchoIntent is the json part for an intent
 type EchoIntent struct {
-	Name               string              `json:"name"`
-	Slots              map[string]EchoSlot `json:"slots"`
-	ConfirmationStatus string              `json:"confirmationStatus,omitempty"`
+	Name               string               `json:"name"`
+	Slots              map[string]*EchoSlot `json:"slots"`
+	ConfirmationStatus string               `json:"confirmationStatus,omitempty"`
 }
 
 type EchoImage struct {
-	Sources []EchoImageSize `json:"sources"`
+	Sources []*EchoImageSize `json:"sources"`
 }
 
 type EchoImageSize struct {
